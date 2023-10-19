@@ -1,11 +1,24 @@
 import os
+import sys
 import copy
 import math
 import random
 
-from asplblock import CodeBlock
+from asplblock import Nilad, Monad, Dyad, Infiniad
 
-with open(f"{os.path.dirname(__file__)}/code.gspl") as file:
+if len(sys.argv) == 2:
+    outf = sys.argv[1]
+elif len(sys.argv) == 3 and sys.argv[1][0] == "-":
+    for flag in sys.argv[1][1:]:
+        if flag == "a":
+            infl = f"{os.path.dirname(__file__)}/{sys.argv[2]}"
+        elif flag == "f":
+            infl = f"{sys.argv[2]}"
+        else:
+            raise TypeError("This flag is not correct!")
+            sys.exit(1)
+
+with open(infl) as file:
     code = file.read()
 
 temp = ["", "", "", "", ""]
@@ -212,7 +225,7 @@ def aspl_parse(cd):
                     copd -= 1
                 temp[0] += c[pos]
                 pos += 1
-            Stack.append(CodeBlock("Nilad", temp[0][:-1]))
+            Stack.append(Nilad(temp[0][:-1]))
             temp[0] = ""
             pos -= 1
 
@@ -226,7 +239,7 @@ def aspl_parse(cd):
                     copd -= 1
                 temp[0] += c[pos]
                 pos += 1
-            Stack.append(CodeBlock("Monad", temp[0][:-1]))
+            Stack.append(Monad(temp[0][:-1]))
             temp[0] = ""
             pos -= 1
 
@@ -240,7 +253,7 @@ def aspl_parse(cd):
                     copd -= 1
                 temp[0] += c[pos]
                 pos += 1
-            Stack.append(CodeBlock("Dyad", temp[0][:-1]))
+            Stack.append(Dyad(temp[0][:-1]))
             temp[0] = ""
             pos -= 1
 
@@ -254,37 +267,25 @@ def aspl_parse(cd):
                     copd -= 1
                 temp[0] += c[pos]
                 pos += 1
-            Stack.append(CodeBlock("Infiniad", temp[0][:-1]))
+            Stack.append(Infiniad(temp[0][:-1]))
             temp[0] = ""
             pos -= 1
 
-
         elif c[pos] == "!":
-            Stack.insert(-3, 0)
-            if type(Stack[-1]) == CodeBlock:
-                if Stack[-1].type == "Nilad":
-                    aspl_parse(Stack.pop().code)
-                elif Stack[-1].type == "Monad":
-                    tml = Stack.pop()
-                    tmf = Stack.pop()
-                    aspl_parse(tmf.code.replace("'α'", str(tml[0])+" "))
-                elif Stack[-1].type == "Dyad":
-                    tml = Stack.pop()
-                    tmf = Stack.pop()
-                    aspl_parse(tmf.code.replace("'α'", str(tml[0])+" ").replace("'β'", str(tml[1])+" "))
-                elif Stack[-1].type == "Infiniad":
-                    tml = Stack.pop()
-                    tmf = Stack.pop()
-                    for i, j in enumerate(tml):
-                        tmf.code = tmf.code.replace(f"'ω{i}'", str(j)+" ")
-                    aspl_parse(tmf.code)
-                Stack.pop(-3)
-
-
-            elif type(Stack[-1]) == int:
+            if type(Stack[-1]) == int:
                 Stack[-1] = math.factorial(Stack[-1])
             elif type(Stack[-1]) == list:
                 Stack[-1].sort()
+            elif type(Stack[-1]) == Nilad:
+                aspl_parse(Stack.pop().code)
+            elif type(Stack[-2]) == Monad:
+                aspl_parse(Stack.pop(-2).code.replace(f"'{chr(0x3b1)}'", Stack[-1][0]))
+            elif type(Stack[-2]) == Dyad:
+                aspl_parse(Stack.pop(-2).code.replace(f"'{chr(0x3b1)}'", Stack[-1][0]).replace("'{0x3b2}'", Stack[-1][1]))
+            elif type(Stack[-2]) == Infiniad:
+                for i1, i2 in enumerate(Stack[-1]):
+                    Stack[-2] = Stack[-2].replace(f"'{chr(0x3c9)}{i1}'", i2)
+
 
         elif c[pos] == "$":
             Stack.append(copy.deepcopy(Stack[-1]))
@@ -465,6 +466,8 @@ def aspl_parse(cd):
 
 
         pos += 1
-        print(Stack, Variables)
+
+# Uncomment for debugging
+#        print(Stack, Variables)
 
 aspl_parse(code)
