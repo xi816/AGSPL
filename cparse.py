@@ -4,6 +4,7 @@ import copy
 import math
 import random
 
+from ast import literal_eval as liteval
 from asplblock import Nilad, Monad, Dyad, Infiniad
 
 if len(sys.argv) == 2:
@@ -17,6 +18,8 @@ elif len(sys.argv) == 3 and sys.argv[1][0] == "-":
         else:
             raise TypeError("This flag is not correct!")
             sys.exit(1)
+if infl[-5:] != ".gspl":
+    raise TypeError("The extension of an input file is not correct (`gspl` for AGSPL 1.1)")
 
 with open(infl) as file:
     code = file.read()
@@ -98,7 +101,7 @@ def aspl_parse(cd):
                 (type(Stack[-2]) == list and type(Stack[-1]) == str):
                 Stack[-2].append(Stack[-1])
                 Stack.pop()
-            elif type(Stack[-2]) == list and type(Stack[-1]) == CodeBlock:
+            elif type(Stack[-2]) == list and type(Stack[-1]) == Nilad:
                 Stack[-2] = aspl_map(Stack[-2], Stack[-1])
                 Stack.pop()
             elif type(Stack[-2]) == str and type(Stack[-1]) == list:
@@ -210,6 +213,8 @@ def aspl_parse(cd):
                         print(f"{j} ", end = "")
 
                 Stack.pop()
+            elif type(Stack[-1]) == str:
+                print(Stack.pop().encode("utf-8").decode("unicode_escape"), end = "")
             else:
                 print(Stack.pop(), end = "")
         elif c[pos] == ",":

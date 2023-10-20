@@ -1,2 +1,39 @@
-~:v {;v 69=}{"Nice".}?
+\[Simple test code to introduce the language]\
+
+\[0. Comments]\
+\[Backslash openbracket text closebracket backslash is a comment (like this)]\
+
+
+\[1. Variables (`.` to output)]\
+69:nice
+;nice .    "\n".
+
+
+\[2. Functions (`!` to call, `~` to number input)]\
+{
+  "First number: ".~
+  "Second number: ".~
+  +
+}:addtwoinputs
+
+;addtwoinputs! "The sum is: ".. 10,
+
+
+\[3. Arrays, Map]\
+[1 2 3 4 5 6]{2*} +. \[Prints: `[2 4 6 8 10 12]`]\    "\n".
+
+
+\[4. Stack operations]\
+5 6 ^      \[Swap]\
+69 $       \[Dup]
+420 69 &   \[Pop]\
+220 200 +  \[Add]\
+"H" "i" +  \[Concat]\
+[1 2] 3+   \[Append]\
+[1] [2]+   \[Concat arrays]
+\[...]\
+
+
+\[More you can find in the esolangs page: https://esolangs.org/wiki/AGSPL]\
+"Read more: https://esolangs.org/wiki/AGSPL\n".
 
